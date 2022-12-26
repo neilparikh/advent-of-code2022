@@ -4,11 +4,11 @@ import Data.List (sortOn)
 import Data.Char (isUpper)
 
 main = do
-    [rawBoxes, rawInsn] <- fmap (wordsOn "" . lines) getContents
+    [rawBoxes, rawInsns] <- fmap (wordsOn "" . lines) getContents
     let boxes = parseBoxes rawBoxes
-    let insn = parseInsn rawInsn
+    let insns = parseInsns rawInsns
     print boxes
-    let finalBoxes = execute boxes (take 10 insn)
+    let finalBoxes = execute boxes insns
     let tops = getTop finalBoxes
     print tops
 
@@ -32,11 +32,12 @@ parseBoxes = foldl parseLine M.empty . fmap (zip [0..])
     where
     parseLine = foldl parseChar
     parseChar m (n, c)
-        | isUpper c = M.insertWith (flip (++)) ((n-1) `div` 3 + 1) [c] m
+        | isUpper c = M.insertWith (flip (++)) (idxToBoxNum n) [c] m
         | otherwise = m
+    idxToBoxNum n = n `div` 4 + 1
 
-parseInsn :: [String] -> [(Int, Int, Int)]
-parseInsn = fmap parseOne
+parseInsns :: [String] -> [(Int, Int, Int)]
+parseInsns = fmap parseOne
     where
     parseOne s = case words s of
         [_, count, _, from, _, to] -> (read count, read from, read to)
