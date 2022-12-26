@@ -7,25 +7,26 @@ main = do
     [rawBoxes, rawInsns] <- fmap (wordsOn "" . lines) getContents
     let boxes = parseBoxes rawBoxes
     let insns = parseInsns rawInsns
-    print boxes
-    let finalBoxes = execute boxes insns
-    let tops = getTop finalBoxes
-    print tops
+    putStrLn $ getTop $ execute boxes (unrollInsn insns)
+    putStrLn $ getTop $ execute boxes insns
 
 getTop :: M.Map Int [Char] -> String
 getTop = fmap (head . snd) . sortOn fst . M.toList
 
 execute :: M.Map Int [Char] -> [(Int, Int, Int)] -> M.Map Int [Char]
 execute m [] = m
-execute m ((1, from, to):xs) = execute (step m from to) xs
-execute m ((n, from, to):xs) = execute (step m from to) ((n-1, from, to):xs)
+execute m ((n, from, to):xs) = execute (step n m from to) xs
 
-step m from _ | not (M.member from m) = m
-step m from _ | null (m M.! from) = m
-step m from to = let
-    box = head $ m M.! from
-    newMap = M.insertWith ((++)) to [box] $ M.adjust tail from m
+step :: Int -> M.Map Int [Char] -> Int -> Int -> M.Map Int [Char]
+step n m from to = let
+    (toMove, remaining) = splitAt n $ m M.! from
+    newMap = M.insertWith ((++)) to toMove $ M.insert from remaining m
     in newMap
+
+unrollInsn :: [(Int, Int, Int)] -> [(Int, Int, Int)]
+unrollInsn = concatMap repeatOne
+    where
+    repeatOne (n, from, to) = take n . repeat $ (1, from, to)
 
 parseBoxes :: [String] -> M.Map Int [Char]
 parseBoxes = foldl parseLine M.empty . fmap (zip [0..])
