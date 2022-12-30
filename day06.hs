@@ -6,6 +6,4 @@ main = do
     print $ solve 14 input
 
 solve :: Int -> String -> Int
-solve n input = let
-    windows = zip [n..] . filter ((== n) . length) . fmap (take n) . tails $ input
-    in fst . head . filter (\(_, b) -> (== n) . length $ b) . fmap (\(a, b) -> (a, nub b)) $ windows
+solve n = (+ n) . length . takeWhile ((< n) . length . nub . take n) . tails
