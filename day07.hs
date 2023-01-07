@@ -1,8 +1,8 @@
 main = do
     raw_input <- getContents
     let input = fmap parse . fmap tail . wordsBy (== '$') $ raw_input
-    print $ input
-    print $ commandsToFs (tail input) (emptyFS, Top)
+    let fs = commandsToFs (tail input) (emptyFS, Top)
+    print $ snd . dirsSmallerThan 100000 $ fs
 
 data Listing = Dir String | File (Int, String) deriving Show
 data Command = Cd String | Ls [Listing] deriving Show
@@ -11,6 +11,13 @@ data Ctx = Top | Down [Tree] String Ctx [Tree]
 type TreeZipper = (Tree, Ctx)
 
 emptyFS = D "/" []
+
+dirsSmallerThan :: Int -> Tree -> (Int, Int) -- (dir size, running total)
+dirsSmallerThan limit (D _ children) = let subDirs = fmap (dirsSmallerThan limit) children
+                                           currSize = sum . fmap fst $ subDirs
+                                           newTotal = (sum . fmap snd $ subDirs) + if currSize <= limit then currSize else 0
+                                       in (currSize, newTotal)
+dirsSmallerThan limit (F (size, _)) = (size, 0)
 
 commandsToFs :: [Command] -> TreeZipper -> Tree
 commandsToFs [] z = getTree z
