@@ -1,8 +1,14 @@
+import Data.List (sortOn)
+
 main = do
     raw_input <- getContents
     let input = fmap parse . fmap tail . wordsBy (== '$') $ raw_input
     let fs = commandsToFs (tail input) (emptyFS, Top)
     print $ snd . dirsSmallerThan 100000 $ fs
+    let (usedSpace, sizeMap') = dirSizes fs
+    let sizeMap = sortOn snd sizeMap'
+    let spaceNeeded = 30000000 - (70000000 - usedSpace)
+    print $ snd . head . dropWhile ((< spaceNeeded) . snd) $ sizeMap
 
 data Listing = Dir String | File (Int, String) deriving Show
 data Command = Cd String | Ls [Listing] deriving Show
@@ -11,6 +17,13 @@ data Ctx = Top | Down [Tree] String Ctx [Tree]
 type TreeZipper = (Tree, Ctx)
 
 emptyFS = D "/" []
+
+dirSizes :: Tree -> (Int, [(String, Int)])
+dirSizes (F (size, _)) = (size, [])
+dirSizes (D dirName children) = let subDirs = fmap dirSizes children
+                                    currSize = sum . fmap fst $ subDirs
+                                    sizeMap = (dirName, currSize):(concat . fmap snd $ subDirs)
+                                in (currSize, sizeMap)
 
 dirsSmallerThan :: Int -> Tree -> (Int, Int) -- (dir size, running total)
 dirsSmallerThan limit (D _ children) = let subDirs = fmap (dirsSmallerThan limit) children
