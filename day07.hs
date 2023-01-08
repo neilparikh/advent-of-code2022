@@ -1,4 +1,5 @@
 import Data.List (sort)
+import Util
 
 main = do
     raw_input <- getContents
@@ -57,9 +58,3 @@ parse ('l':'s':'\n':files) = Ls (fmap parseListing . lines $ files)
     where
     parseListing ('d':'i':'r':' ':dirName) = Dir dirName
     parseListing str = let [size, name] = words str in File (read size, name)
-
-wordsBy :: (a -> Bool) -> [a] -> [[a]]
-wordsBy f s = case dropWhile f s of
-  [] -> []
-  s' -> w : wordsBy f s''
-    where (w, s'') = break f s'

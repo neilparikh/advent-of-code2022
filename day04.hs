@@ -1,3 +1,5 @@
+import Util
+
 main = do
     rawInput <- getContents
     let input = parse rawInput
@@ -23,15 +25,6 @@ parse :: String -> [((Int, Int), (Int, Int))]
 parse = fmap parseOne . lines
     where
     parseOne = listToTuple . fmap (listToTuple . fmap read . wordsOn '-') . wordsOn ','
-
-wordsBy :: (a -> Bool) -> [a] -> [[a]]
-wordsBy f s = case dropWhile f s of
-  [] -> []
-  s' -> w : wordsBy f s''
-    where (w, s'') = break f s'
-
-wordsOn :: (Eq a) => a -> [a] -> [[a]]
-wordsOn x = wordsBy (== x)
 
 listToTuple :: [a] -> (a, a)
 listToTuple [x, y] = (x, y)

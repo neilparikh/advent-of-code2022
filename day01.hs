@@ -6,16 +6,10 @@ main = do
     print $ part2 input
 
 parseInput :: String -> [[Int]]
-parseInput = fmap (fmap read) . wordsBy (== "") . lines
+parseInput = fmap (fmap read) . wordsOn "" . lines
 
 part1 :: [[Int]] -> Int
 part1 = maximum . fmap sum
 
 part2 :: [[Int]] -> Int
 part2 = sum . take 3 . reverse . sort . fmap sum
-
-wordsBy :: (a -> Bool) -> [a] -> [[a]]
-wordsBy f s = case dropWhile f s of
-  [] -> []
-  s' -> w : wordsBy f s''
-    where (w, s'') = break f s'

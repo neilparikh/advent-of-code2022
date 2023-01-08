@@ -1,5 +1,6 @@
 import qualified Data.Set as S
 import Data.Char (ord)
+import Util
 
 main = do
     rawInput <- getContents
@@ -16,10 +17,6 @@ part2 :: [String] -> Int
 part2 = sum . fmap solve1 . groupsOf 3
     where
     solve1 = score . head . S.toList . intersections . fmap S.fromList
-
-groupsOf :: Int -> [a] -> [[a]]
-groupsOf n [] = []
-groupsOf n xs = let (a, b) = splitAt n xs in a : (groupsOf n b)
 
 intersections :: (Ord a) => [S.Set a] -> S.Set a
 intersections [] = S.empty

@@ -2,6 +2,7 @@
 import qualified Data.Map.Strict as M
 import Data.List (sortOn)
 import Data.Char (isUpper)
+import Uitl
 
 main = do
     [rawBoxes, rawInsns] <- fmap (wordsOn "" . lines) getContents
@@ -43,12 +44,3 @@ parseInsns = fmap parseOne
     parseOne s = case words s of
         [_, count, _, from, _, to] -> (read count, read from, read to)
         _ -> error "bad insn"
-
-wordsBy :: (a -> Bool) -> [a] -> [[a]]
-wordsBy f s = case dropWhile f s of
-  [] -> []
-  s' -> w : wordsBy f s''
-    where (w, s'') = break f s'
-
-wordsOn :: (Eq a) => a -> [a] -> [[a]]
-wordsOn x = wordsBy (== x)
